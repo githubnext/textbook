@@ -43,49 +43,42 @@ jobs:
       - name: Get Matching Chrome version
         run: npx browser-driver-manager install chrome
 
-      # DEBUGGING
-      - name: Start Server 
-        run: |
-          # Start server in background
-          npx http-server ./_build/html -p 8080 -s &
-          sleep 5
-          
-      # DEBUGGING
-      - name: Debug Assets
-        run: |
-          # Find whatever the current CSS filename is
-          CSS_PATH=$(find _build/html/build/_assets/ -name "app-*.css" | sed 's|_build/html||')
-          echo "Checking for asset: $CSS_PATH"
-          curl -I "http://localhost:8080$CSS_PATH"
-          
-      # DEBUGGING
-      - name: Debug - Curl Root Index
-        run: curl -v http://localhost:8080/index.html
-
-      # DEBUGGING
-      - name: Debug - Curl Chapter Index
-        run: curl -v http://localhost:8080/chapters/01/what-is-data-science/index.html
-
-      # 3. Serve, Discover URLs, and Run Axe
-      # - name: Run Axe Checks
+      # # DEBUGGING
+      # - name: Start Server 
       #   run: |
-      #     # A. Start a local server in the background
+      #     # Start server in background
       #     npx http-server ./_build/html -p 8080 -s &
       #     sleep 5
           
-      #     # B. Generate the URL list from the actual build artifacts
-      #     cd _build/html
-      #     URLS=$(find . -name "*.html" -not -path "*/build/*" | sed 's|^\./||' | sed 's|^|http://localhost:8080/|' | tr '\n' ' ')          
-          
-      #     # C. Run Axe CLI on the discovered URLs
-      #     axe $URLS \
-      #       --tags wcag2a,wcag2aa,wcag21a,wcag21aa \
-      #       --save axe-report.json \
-      #       --exit
+      # # DEBUGGING
+      # - name: Debug - Curl Root Index
+      #   run: curl -v http://localhost:8080/index.html
 
-      # - name: Upload Accessibility Report
-      #   if: always() 
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: axe-report
-      #     path: _build/html/axe-report.json
+      # # DEBUGGING
+      # - name: Debug - Curl Chapter Index
+      #   run: curl -v http://localhost:8080/chapters/01/what-is-data-science/index.html
+
+      # 3. Serve, Discover URLs, and Run Axe
+      - name: Run Axe Checks
+        run: |
+          # A. Start a local server in the background
+          npx http-server ./_build/html -p 8080 -s &
+          sleep 5
+          
+          # B. Generate the URL list from the actual build artifacts
+          cd _build/html
+          URLS=$(find . -name "*.html" -not -path "*/build/*" | sed 's|^\./||' | sed 's|^|http://localhost:8080/|' | tr '\n' ' ')          
+          
+          # C. Run Axe CLI on the discovered URLs
+          axe $URLS \
+            --tags wcag2a,wcag2aa,wcag21a,wcag21aa \
+            --save axe-report.json \
+            --post-get-pause 3000 \ 
+            --exit
+
+      - name: Upload Accessibility Report
+        if: always() 
+        uses: actions/upload-artifact@v4
+        with:
+          name: axe-report
+          path: _build/html/axe-report.json
