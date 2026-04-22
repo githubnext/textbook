@@ -43,13 +43,21 @@ jobs:
       - name: Get Matching Chrome version
         run: npx browser-driver-manager install chrome
 
+      # DEBUGGING
       - name: Start Server 
         run: |
           # Start server in background
           npx http-server ./_build/html -p 8080 -s &
           sleep 5
           
-
+      # DEBUGGING
+      - name: Debug Assets
+        run: |
+          # Find whatever the current CSS filename is
+          CSS_PATH=$(find _build/html/build/_assets/ -name "app-*.css" | sed 's|_build/html||')
+          echo "Checking for asset: $CSS_PATH"
+          curl -I "http://localhost:8080$CSS_PATH"
+          
       # DEBUGGING
       - name: Debug - Curl Root Index
         run: curl -v http://localhost:8080/index.html
