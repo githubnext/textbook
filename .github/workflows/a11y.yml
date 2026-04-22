@@ -43,6 +43,14 @@ jobs:
       - name: Get Matching Chrome version
         run: npx browser-driver-manager install chrome
 
+      # DEBUGGING
+      - name: Debug - Curl Root Index
+        run: curl -v http://localhost:8080/index.html
+
+      # DEBUGGING
+      - name: Debug - Curl Chapter Index
+        run: curl -v http://localhost:8080/chapters/01/what-is-data-science/index.html
+
       # 3. Serve, Discover URLs, and Run Axe
       - name: Run Axe Checks
         run: |
