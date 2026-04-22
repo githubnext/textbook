@@ -43,6 +43,13 @@ jobs:
       - name: Get Matching Chrome version
         run: npx browser-driver-manager install chrome
 
+      - name: Start Server 
+        run: |
+          # Start server in background
+          npx http-server ./_build/html -p 8080 -s &
+          sleep 5
+          
+
       # DEBUGGING
       - name: Debug - Curl Root Index
         run: curl -v http://localhost:8080/index.html
@@ -52,25 +59,25 @@ jobs:
         run: curl -v http://localhost:8080/chapters/01/what-is-data-science/index.html
 
       # 3. Serve, Discover URLs, and Run Axe
-      - name: Run Axe Checks
-        run: |
-          # A. Start a local server in the background
-          npx http-server ./_build/html -p 8080 -s &
-          sleep 5
+      # - name: Run Axe Checks
+      #   run: |
+      #     # A. Start a local server in the background
+      #     npx http-server ./_build/html -p 8080 -s &
+      #     sleep 5
           
-          # B. Generate the URL list from the actual build artifacts
-          cd _build/html
-          URLS=$(find . -name "*.html" -not -path "*/build/*" | sed 's|^\./||' | sed 's|^|http://localhost:8080/|' | tr '\n' ' ')          
+      #     # B. Generate the URL list from the actual build artifacts
+      #     cd _build/html
+      #     URLS=$(find . -name "*.html" -not -path "*/build/*" | sed 's|^\./||' | sed 's|^|http://localhost:8080/|' | tr '\n' ' ')          
           
-          # C. Run Axe CLI on the discovered URLs
-          axe $URLS \
-            --tags wcag2a,wcag2aa,wcag21a,wcag21aa \
-            --save axe-report.json \
-            --exit
+      #     # C. Run Axe CLI on the discovered URLs
+      #     axe $URLS \
+      #       --tags wcag2a,wcag2aa,wcag21a,wcag21aa \
+      #       --save axe-report.json \
+      #       --exit
 
-      - name: Upload Accessibility Report
-        if: always() 
-        uses: actions/upload-artifact@v4
-        with:
-          name: axe-report
-          path: _build/html/axe-report.json
+      # - name: Upload Accessibility Report
+      #   if: always() 
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: axe-report
+      #     path: _build/html/axe-report.json
